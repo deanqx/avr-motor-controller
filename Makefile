@@ -12,7 +12,7 @@ compile:
 	avr-objcopy -O ihex -R .eeprom $(BUILD_DIR)/compiled.bin $(BUILD_DIR)/compiled.hex
 
 upload:
-	avrdude -v -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:$(BUILD_DIR)/compiled.hex
+	avrdude -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:$(BUILD_DIR)/compiled.hex
 
 size: compile
 	avr-size --format=avr --mcu=atmega328p $(BUILD_DIR)/compiled.bin

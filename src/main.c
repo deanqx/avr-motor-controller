@@ -1,10 +1,12 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#define IN1_PIN PORTB3
-#define IN2_PIN PORTB2
-#define IN3_PIN PORTB1
-#define IN4_PIN PORTB0
+#define IN1_PIN PORTB0
+#define IN2_PIN PORTB1
+#define IN3_PIN PORTB2
+#define IN4_PIN PORTB3
+
+#define DELAY 500
 
 typedef struct
 {
@@ -16,21 +18,57 @@ void init_motor_controller(MotorController* controller, float steps_per_degree)
 {
     controller->steps_per_revolution = (short)(360.0f / steps_per_degree);
     controller->steps_per_degree = steps_per_degree;
-
-    DDRB |= 1 << IN1_PIN;
-    DDRB |= 1 << IN2_PIN;
-    DDRB &= ~(1 << IN3_PIN);
-    DDRB &= ~(1 << IN4_PIN);
 }
 
 void step()
 {
-   PORTB |= 1 << IN1_PIN;
-   _delay_ms(10);
-   PORTB &= ~(1 << IN1_PIN);
-   PORTB |= 1 << IN2_PIN;
-   _delay_ms(10);
-   PORTB &= ~(1 << IN2_PIN);
+    DDRB |= 1 << IN1_PIN;
+    DDRB &= ~(1 << IN3_PIN);
+    PORTB |= 1 << IN1_PIN;
+    _delay_ms(DELAY);
+    PORTB &= ~(1 << IN1_PIN);
+
+    //DDRB |= 1 << IN2_PIN;
+    //DDRB &= ~(1 << IN4_PIN);
+    //PORTB |= 1 << IN2_PIN;
+    //_delay_ms(DELAY);
+    //PORTB &= ~(1 << IN2_PIN);
+
+    //DDRB |= 1 << IN3_PIN;
+    //DDRB &= ~(1 << IN1_PIN);
+    //PORTB |= 1 << IN3_PIN;
+    //_delay_ms(DELAY);
+    //PORTB &= ~(1 << IN3_PIN);
+
+    //DDRB |= 1 << IN4_PIN;
+    //DDRB &= ~(1 << IN2_PIN);
+    //PORTB |= 1 << IN4_PIN;
+    //_delay_ms(DELAY);
+    //PORTB &= ~(1 << IN4_PIN);
+}
+
+void step2()
+{
+DDRB |= (1 << IN1_PIN);
+DDRB |= (1 << IN2_PIN);
+DDRB |= (1 << IN3_PIN);
+DDRB |= (1 << IN4_PIN);
+
+PORTB |= (1 << IN1_PIN);
+_delay_ms(DELAY);
+PORTB &= ~(1 << IN1_PIN);
+
+PORTB |= (1 << IN2_PIN);
+_delay_ms(DELAY);
+PORTB &= ~(1 << IN2_PIN);
+
+PORTB |= (1 << IN3_PIN);
+_delay_ms(DELAY);
+PORTB &= ~(1 << IN3_PIN);
+
+PORTB |= (1 << IN4_PIN);
+_delay_ms(DELAY);
+PORTB &= ~(1 << IN4_PIN);
 }
 
 void led_test()
@@ -49,15 +87,13 @@ void led_test()
 
 int main(void)
 {
-    //led_test();
+    // led_test();
 
     MotorController controller;
     init_motor_controller(&controller, 11.32f);
 
     while(1)
     {
-        step();
+        step2();
     }
-
-    return 0;
 }

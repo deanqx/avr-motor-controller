@@ -20,8 +20,8 @@ int main(void)
     //led_test();
 
     MotorController controller;
-    mc_init(&controller, 0.3515625f);
-    mc_set_rpm(&controller, 2.0f);
+    mc_init(&controller, 0.08789f);
+    mc_set_rpm(&controller, 10.0f);
     
     // internal LED
     DDRB |= 1 << DDB5;

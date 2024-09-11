@@ -1,8 +1,7 @@
 SRC_DIR = src
 BUILD_DIR = build
 
-OPTIMIZATION = -Os
-
+O ?= s
 port ?= /dev/ttyUSB0
 i ?= $(wildcard $(SRC_DIR)/*.c)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(i))
@@ -18,10 +17,10 @@ deps_dnf:
 	sudo dnf install -y avr-libc avrdude avr-binutils.x86_64 avr-gcc.x86_64 
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	avr-gcc $(OPTIMIZATION) -DF_CPU=16000000UL -mmcu=atmega328p -c $< -o $@
+	avr-gcc -O$(O) -DF_CPU=16000000UL -mmcu=atmega328p -c $< -o $@
 
 build: $(OBJS)
-	avr-gcc -mmcu=atmega328p -o $(BUILD_DIR)/compiled.bin $(OBJS)
+	avr-gcc -O$(O) -mmcu=atmega328p -o $(BUILD_DIR)/compiled.bin $(OBJS)
 	avr-objcopy -O ihex -R .eeprom $(BUILD_DIR)/compiled.bin $(BUILD_DIR)/compiled.hex
 
 upload:
@@ -35,7 +34,7 @@ asm:
 	avr-gcc -S -Os -DF_CPU=16000000UL -mmcu=atmega328p -o $(BUILD_DIR)/compiled.asm $(SRC_DIR)/main.c
 
 clean:
-	rm compile_commands.json
+	rm -f compile_commands.json
 	rm -r $(BUILD_DIR)
 
 .PHONY: all deps upload size clean

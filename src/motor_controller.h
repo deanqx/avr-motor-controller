@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 // IN1 == IN_PINB[0]
-static const uint8_t IN_PINB[4] = {PORTB0, PORTB1, PORTB2, PORTB3};
+static const uint8_t IN_PINB[4] = {PB0, PB1, PB2, PB3};
 
 typedef struct
 {

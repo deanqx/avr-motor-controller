@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 // IN1 == IN_PINB[0]
 static const uint8_t IN_PINB[4] = {PORTB0, PORTB1, PORTB2, PORTB3};
@@ -21,8 +22,13 @@ typedef struct
 // @param degree_per_micro_step Full Step Angle / 2
 void mc_init(MotorController* controller, float degree_per_micro_step);
 void mc_set_rpm(MotorController* controller, float rpm);
+void mc_calibrate(MotorController* controller, short direction);
 // @param direction forward: 1, backward: -1
 void mc_step(MotorController* controller, short direction);
 void mc_step_for_degree(MotorController* controller, short direction, float degree);
+// @param callback This function returns when callback returns false
+void mc_step_until(MotorController* controller, short direction, bool (*callback)());
+// mc_calibrate() has to be called once before
+void mc_vibrate(MotorController* controller);
 
 #endif

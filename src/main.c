@@ -23,13 +23,15 @@ int main(void)
     MotorController controller;
     mc_init(&controller, 0.08789f);
     mc_set_rpm(&controller, 2.5f);
+    mc_calibrate(&controller, 1);
 
     // internal LED
     DDRB |= 1 << DDB5;
 
     while (1)
     {
-        mc_step_for_degree(&controller, 1, 360.0f);
+        // mc_step_for_degree(&controller, 1, 360.0f);
+        mc_vibrate(&controller);
         PORTB ^= (1 << PORTB5);
     }
 }

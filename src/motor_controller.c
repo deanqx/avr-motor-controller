@@ -32,6 +32,14 @@ void mc_set_rpm(MotorController* controller, float rpm)
     controller->delay_between_steps_ms = 60000 / (uint16_t)(controller->steps_per_revolution * rpm);
 }
 
+void mc_calibrate(MotorController *controller, short direction)
+{
+    mc_step(controller, direction);
+    mc_step(controller, direction);
+    mc_step(controller, direction);
+    mc_step(controller, direction);
+}
+
 void mc_step(MotorController* controller, short direction)
 {
     PORTB |= (1 << *controller->step_phase);
@@ -58,4 +66,18 @@ void mc_step_for_degree(MotorController* controller, short direction, float degr
     {
         mc_step(controller, direction);
     }
+}
+
+void mc_step_until(MotorController* controller, short direction, bool (*callback)())
+{
+    while (callback())
+    {
+        mc_step(controller, direction);
+    }
+}
+
+void mc_vibrate(MotorController* controller)
+{
+    mc_step(controller, 1);
+    mc_step(controller, -1);
 }

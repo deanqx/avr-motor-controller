@@ -1,4 +1,5 @@
 #include <util/delay.h>
+
 #include "motor_controller.h"
 
 void led_test()
@@ -17,18 +18,18 @@ void led_test()
 
 int main(void)
 {
-    //led_test();
+    // led_test();
 
     MotorController controller;
     mc_init(&controller, 0.08789f);
-    mc_set_rpm(&controller, 10.0f);
-    
+    mc_set_rpm(&controller, 2.5f);
+
     // internal LED
     DDRB |= 1 << DDB5;
 
     while (1)
     {
-        mc_step_for_degree(&controller, 360.0f);
+        mc_step_for_degree(&controller, 1, 360.0f);
         PORTB ^= (1 << PORTB5);
     }
 }

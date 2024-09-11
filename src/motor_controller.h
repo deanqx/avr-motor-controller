@@ -1,21 +1,19 @@
 #ifndef MOTOR_CONTROLLER_H
 #define MOTOR_CONTROLLER_H
 
-#include <stdint.h>
 #include <avr/io.h>
+#include <stdint.h>
 
-#define IN1_PIN PORTB0
-#define IN2_PIN PORTB1
-#define IN3_PIN PORTB2
-#define IN4_PIN PORTB3
+// IN1 == IN_PINB[0]
+static const uint8_t IN_PINB[4] = {PORTB0, PORTB1, PORTB2, PORTB3};
 
 typedef struct
 {
-    uint16_t steps_per_revolution;
+    float steps_per_revolution;
     float degree_per_step;
 
     // Don't modify the following variables:
-    uint8_t step_phase;
+    const uint8_t* step_phase;
     float rpm;
     uint16_t delay_between_steps_ms;
 } MotorController;
@@ -23,7 +21,8 @@ typedef struct
 // @param degree_per_micro_step Full Step Angle / 2
 void mc_init(MotorController* controller, float degree_per_micro_step);
 void mc_set_rpm(MotorController* controller, float rpm);
-void mc_step(MotorController* controller);
-void mc_step_for_degree(MotorController* controller, float degree);
+// @param direction forward: 1, backward: -1
+void mc_step(MotorController* controller, short direction);
+void mc_step_for_degree(MotorController* controller, short direction, float degree);
 
 #endif

@@ -7,21 +7,27 @@ port ?= /dev/ttyUSB0
 i ?= $(wildcard $(SRC_DIR)/*.c)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(i))
 
-$(shell	@mkdir -p $(BUILD_DIR))
+$(shell	mkdir -p $(BUILD_DIR))
 
-all: compile upload
+all: build upload
+
+deps:
+	sudo apt install -y avr-libc avrdude binutils-avr gcc-avr
+
+deps_dnf:
+	sudo dnf install -y avr-libc avrdude avr-binutils.x86_64 avr-gcc.x86_64 
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	avr-gcc $(OPTIMIZATION) -DF_CPU=16000000UL -mmcu=atmega328p -c $< -o $@
 
-compile: $(OBJS)
+build: $(OBJS)
 	avr-gcc -mmcu=atmega328p -o $(BUILD_DIR)/compiled.bin $(OBJS)
 	avr-objcopy -O ihex -R .eeprom $(BUILD_DIR)/compiled.bin $(BUILD_DIR)/compiled.hex
 
 upload:
 	avrdude -c arduino -p ATMEGA328P -P $(port) -b 115200 -U flash:w:$(BUILD_DIR)/compiled.hex
 
-size: compile
+size: build
 	avr-size --format=avr --mcu=atmega328p $(BUILD_DIR)/compiled.bin
 
 asm:
@@ -32,4 +38,4 @@ clean:
 	rm compile_commands.json
 	rm -r $(BUILD_DIR)
 
-.PHONY: upload size clean
+.PHONY: all deps upload size clean

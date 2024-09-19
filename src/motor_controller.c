@@ -15,7 +15,7 @@ void mc_init(MotorController* controller, float degree_per_micro_step)
     controller->degree_per_step = degree_per_micro_step * 2;
     controller->steps_per_revolution = 360.0f / controller->degree_per_step;
 
-    controller->step_phase = IN_PINB;
+    controller->step_phase = 0;
 
     mc_set_rpm(controller, 1.0f);
 
@@ -32,7 +32,7 @@ void mc_set_rpm(MotorController* controller, float rpm)
     controller->delay_between_steps_ms = 60000 / (uint16_t)(controller->steps_per_revolution * rpm);
 }
 
-void mc_calibrate(MotorController *controller, short direction)
+void mc_calibrate(MotorController* controller, int8_t direction)
 {
     mc_step(controller, direction);
     mc_step(controller, direction);
@@ -40,44 +40,71 @@ void mc_calibrate(MotorController *controller, short direction)
     mc_step(controller, direction);
 }
 
-void mc_step(MotorController* controller, short direction)
+void mc_step(MotorController* controller, int8_t direction)
 {
-    PORTB |= (1 << *controller->step_phase);
-    delay_ms(controller->delay_between_steps_ms);
-    PORTB &= ~(1 << *controller->step_phase);
+    switch (controller->step_phase)
+    {
+        case 0:
+            PORTB |= (1 << IN_PINB[0]);
+            PORTB |= (1 << IN_PINB[1]);
+            PORTB &= ~(1 << IN_PINB[2]);
+            PORTB &= ~(1 << IN_PINB[3]);
+            break;
+        case 1:
+            PORTB &= ~(1 << IN_PINB[0]);
+            PORTB |= (1 << IN_PINB[1]);
+            PORTB |= (1 << IN_PINB[2]);
+            PORTB &= ~(1 << IN_PINB[3]);
+            break;
+        case 2:
+            PORTB &= ~(1 << IN_PINB[0]);
+            PORTB &= ~(1 << IN_PINB[1]);
+            PORTB |= (1 << IN_PINB[2]);
+            PORTB |= (1 << IN_PINB[3]);
+            break;
+        case 3:
+            PORTB |= (1 << IN_PINB[0]);
+            PORTB &= ~(1 << IN_PINB[1]);
+            PORTB &= ~(1 << IN_PINB[2]);
+            PORTB |= (1 << IN_PINB[3]);
+            break;
+    }
 
     controller->step_phase += direction;
 
-    if (controller->step_phase > IN_PINB + 3)
+    if (controller->step_phase > 3)
     {
-        controller->step_phase = IN_PINB;
+        controller->step_phase = 0;
     }
-
-    if (controller->step_phase < IN_PINB)
+    else if (controller->step_phase < 0)
     {
-        controller->step_phase = IN_PINB + 3;
+        controller->step_phase = 3;
     }
 }
 
-void mc_step_for_degree(MotorController* controller, short direction, float degree)
+void mc_step_for_degree(MotorController* controller, int8_t direction, float degree)
 {
     for (float degree_stepped = 0.0f; degree_stepped < degree;
          degree_stepped += controller->degree_per_step)
     {
         mc_step(controller, direction);
+        delay_ms(controller->delay_between_steps_ms);
     }
 }
 
-void mc_step_until(MotorController* controller, short direction, bool (*callback)())
+void mc_step_until(MotorController* controller, int8_t direction, bool (*callback)())
 {
     while (callback())
     {
         mc_step(controller, direction);
+        delay_ms(controller->delay_between_steps_ms);
     }
 }
 
 void mc_vibrate(MotorController* controller)
 {
     mc_step(controller, 1);
+    delay_ms(controller->delay_between_steps_ms);
     mc_step(controller, -1);
+    delay_ms(controller->delay_between_steps_ms);
 }

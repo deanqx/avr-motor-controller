@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "usart.h"
+
 // IN1 == IN_PINB[0]
 static const uint8_t IN_PINB[4] = {PB0, PB1, PB2, PB3};
 

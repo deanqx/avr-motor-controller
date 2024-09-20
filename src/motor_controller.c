@@ -42,6 +42,17 @@ void mc_calibrate(MotorController* controller, int8_t direction)
 
 void mc_step(MotorController* controller, int8_t direction)
 {
+    controller->step_phase += direction;
+
+    if (controller->step_phase > 3)
+    {
+        controller->step_phase = 0;
+    }
+    else if (controller->step_phase < 0)
+    {
+        controller->step_phase = 3;
+    }
+
     switch (controller->step_phase)
     {
         case 0:
@@ -69,17 +80,6 @@ void mc_step(MotorController* controller, int8_t direction)
             PORTB |= (1 << IN_PINB[3]);
             break;
     }
-
-    controller->step_phase += direction;
-
-    if (controller->step_phase > 3)
-    {
-        controller->step_phase = 0;
-    }
-    else if (controller->step_phase < 0)
-    {
-        controller->step_phase = 3;
-    }
 }
 
 void mc_step_for_degree(MotorController* controller, int8_t direction, float degree)
@@ -96,6 +96,15 @@ void mc_step_until(MotorController* controller, int8_t direction, bool (*callbac
 {
     while (callback())
     {
+        printf("\nPress s to Step and r to reverse: ");
+
+        char command = getchar();
+
+        if (command == 'r')
+        {
+            return;
+        }
+
         mc_step(controller, direction);
         delay_ms(controller->delay_between_steps_ms);
     }

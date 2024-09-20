@@ -1,7 +1,9 @@
+#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
 #include "motor_controller.h"
+#include "usart.h"
 
 void led_test()
 {
@@ -32,6 +34,9 @@ bool switch_buttom()
 int main(void)
 {
     // led_test();
+    cli();
+
+    uart_init(BAUD_CALC(115200));  // 8n1 transmission is set as default
 
     MotorController controller;
     mc_init(&controller, 0.08789f);
@@ -46,11 +51,16 @@ int main(void)
     // Buttom button input
     DDRC &= ~(1 << PC1);
 
+    sei();
+
     while (1)
     {
         // mc_step_for_degree(&controller, 1, 360.0f);
+        uart_puts("Forward\r\n");
         mc_step_until(&controller, 1, switch_top);
         PORTB ^= (1 << PB5);
+
+        uart_puts("Backwards\r\n");
         mc_step_until(&controller, -1, switch_buttom);
         PORTB ^= (1 << PB5);
     }

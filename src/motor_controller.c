@@ -23,6 +23,10 @@ void mc_init(MotorController* controller, float degree_per_micro_step)
     DDRB |= (1 << IN_PINB[1]);
     DDRB |= (1 << IN_PINB[2]);
     DDRB |= (1 << IN_PINB[3]);
+    PORTB &= ~(1 << IN_PINB[0]);
+    PORTB &= ~(1 << IN_PINB[1]);
+    PORTB &= ~(1 << IN_PINB[2]);
+    PORTB &= ~(1 << IN_PINB[3]);
 }
 
 void mc_set_rpm(MotorController* controller, float rpm)
@@ -55,28 +59,33 @@ void mc_step(MotorController* controller, int8_t direction)
 
     switch (controller->step_phase)
     {
+        // Turning off first is required
         case 0:
-            PORTB |= (1 << IN_PINB[0]);
-            PORTB |= (1 << IN_PINB[1]);
-            PORTB &= ~(1 << IN_PINB[2]);
+            PORTB &= ~(1 << IN_PINB[1]);
             PORTB &= ~(1 << IN_PINB[3]);
+            //_delay_us(20.0);
+            PORTB |= (1 << IN_PINB[0]);
+            PORTB |= (1 << IN_PINB[2]);
             break;
         case 1:
             PORTB &= ~(1 << IN_PINB[0]);
+            PORTB &= ~(1 << IN_PINB[3]);
+            //_delay_us(20.0);
             PORTB |= (1 << IN_PINB[1]);
             PORTB |= (1 << IN_PINB[2]);
-            PORTB &= ~(1 << IN_PINB[3]);
             break;
         case 2:
             PORTB &= ~(1 << IN_PINB[0]);
-            PORTB &= ~(1 << IN_PINB[1]);
-            PORTB |= (1 << IN_PINB[2]);
+            PORTB &= ~(1 << IN_PINB[2]);
+            //_delay_us(20.0);
+            PORTB |= (1 << IN_PINB[1]);
             PORTB |= (1 << IN_PINB[3]);
             break;
         case 3:
-            PORTB |= (1 << IN_PINB[0]);
             PORTB &= ~(1 << IN_PINB[1]);
             PORTB &= ~(1 << IN_PINB[2]);
+            //_delay_us(20.0);
+            PORTB |= (1 << IN_PINB[0]);
             PORTB |= (1 << IN_PINB[3]);
             break;
     }
@@ -96,14 +105,14 @@ void mc_step_until(MotorController* controller, int8_t direction, bool (*callbac
 {
     while (callback())
     {
-        printf("\nPress s to Step and r to reverse: ");
+        /*printf("\nPress s to Step and r to reverse: ");
 
         char command = getchar();
 
         if (command == 'r')
         {
             return;
-        }
+        }*/
 
         mc_step(controller, direction);
         delay_ms(controller->delay_between_steps_ms);

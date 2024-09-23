@@ -33,17 +33,18 @@ bool switch_buttom()
 int main(void)
 {
     // led_test();
-    
+
     cli();
 
-    uart_init(BAUD_CALC(115200));  // 8n1 transmission is set as default
-                                   //
+    /*uart_init(BAUD_CALC(115200));  // 8n1 transmission is set as default
+
     // attach uart stream to stdout & stdin
     stdout = &uart0_io;
-	stdin = &uart0_io;
+    stdin = &uart0_io;*/
 
     MotorController controller;
     mc_init(&controller, 0.08789f);
+    mc_set_rpm(&controller, 0.1f);
     mc_set_rpm(&controller, 5.0f);
     mc_calibrate(&controller, 1);
 
@@ -60,11 +61,11 @@ int main(void)
     while (1)
     {
         // mc_step_for_degree(&controller, 1, 360.0f);
-        printf("Forward\r\n");
+        // printf("Forward\r\n");
         mc_step_until(&controller, 1, switch_top);
         PORTB ^= (1 << PB5);
 
-        printf("Backwards\r\n");
+        // printf("Backwards\r\n");
         mc_step_until(&controller, -1, switch_buttom);
         PORTB ^= (1 << PB5);
     }

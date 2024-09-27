@@ -45,7 +45,8 @@ int main(void)
     MotorController controller;
     mc_init(&controller, 0.08789f);
     mc_set_rpm(&controller, 0.1f);
-    mc_set_rpm(&controller, 5.0f);
+    mc_set_rpm(&controller, 11.0f);  // Normal
+    mc_set_rpm(&controller, 10.0f);  // Slow start
     mc_calibrate(&controller, 1);
 
     // internal LED

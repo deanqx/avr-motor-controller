@@ -1,6 +1,10 @@
 #include "motor_controller.h"
 
+#include <stdint.h>
+#include <stdio.h>
 #include <util/delay.h>
+
+#include "usart.h"
 
 void delay_ms(uint16_t ms)
 {
@@ -101,9 +105,20 @@ void mc_step_for_degree(MotorController* controller, int8_t direction, float deg
     }
 }
 
-void mc_step_until(MotorController* controller, int8_t direction, bool (*callback)())
+void mc_step_for_ms(MotorController* controller, int8_t direction, uint16_t time_ms)
 {
-    while (callback())
+    for (uint16_t time_passed_ms = 0; time_passed_ms <= time_ms;
+         time_passed_ms += controller->delay_between_steps_ms)
+    {
+        mc_step(controller, direction);
+        delay_ms(controller->delay_between_steps_ms);
+    }
+}
+
+void mc_step_until(MotorController* controller, int8_t direction,
+                   bool (*callback)(MotorController* controller))
+{
+    while (callback(controller))
     {
         /*printf("\nPress s to Step and r to reverse: ");
 

@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// #include "usart.h"
-
 // IN1 == IN_PINB[0]
 static const uint8_t IN_PINB[4] = {PB0, PB1, PB2, PB3};
 
@@ -28,8 +26,9 @@ void mc_calibrate(MotorController* controller, int8_t direction);
 // @param direction forward: 1, backward: -1
 void mc_step(MotorController* controller, int8_t direction);
 void mc_step_for_degree(MotorController* controller, int8_t direction, float degree);
+void mc_step_for_ms(MotorController* controller, int8_t direction, uint16_t time_ms);
 // @param callback This function returns when callback returns false
-void mc_step_until(MotorController* controller, int8_t direction, bool (*callback)());
+void mc_step_until(MotorController* controller, int8_t direction, bool (*callback)(MotorController* controller));
 // mc_calibrate() has to be called once before
 void mc_vibrate(MotorController* controller);
 

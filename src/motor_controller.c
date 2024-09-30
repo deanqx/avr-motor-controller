@@ -35,7 +35,7 @@ void mc_init(MotorController* controller, float degree_per_micro_step)
 
 void mc_set_rpm(MotorController* controller, float rpm)
 {
-    printf("RPM: %d\r\n", (int)rpm);
+    // printf("RPM: %d\r\n", (int)rpm);
 
     controller->rpm = rpm;
     // 1min=60000ms
@@ -95,6 +95,11 @@ void mc_step(MotorController* controller, int8_t direction)
             PORTB |= (1 << IN_PINB[3]);
             break;
     }
+}
+
+void mc_stop(MotorController* controller)
+{
+    PORTB &= ~((1 << IN_PINB[0]) | (1 << IN_PINB[1]) | (1 << IN_PINB[2]) | (1 << IN_PINB[3]));
 }
 
 void mc_step_for_degree(MotorController* controller, int8_t direction, float degree)

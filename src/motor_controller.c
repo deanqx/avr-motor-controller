@@ -35,6 +35,8 @@ void mc_init(MotorController* controller, float degree_per_micro_step)
 
 void mc_set_rpm(MotorController* controller, float rpm)
 {
+    printf("RPM: %d\r\n", (int)rpm);
+
     controller->rpm = rpm;
     // 1min=60000ms
     controller->delay_between_steps_ms = 60000 / (uint16_t)(controller->steps_per_revolution * rpm);

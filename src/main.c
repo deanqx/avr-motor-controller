@@ -8,9 +8,11 @@
 
 #define SWITCH_TOP_PIN PD5
 #define SWITCH_BOTTOM_PIN PD4
-#define MIN_RPM 3.0f
-#define MAX_RPM 6.0f
-#define SLOW_START_RATE 0.9f
+#define MIN_RPM 160.0f
+#define MAX_RPM 300.0f
+#define UPWARD_RATE 0.95f
+#define SLOW_START_RATE 0.97f
+#define SLOW_START_TIME_MS 300
 
 float get_rpm_from_poti()
 {
@@ -38,7 +40,7 @@ bool switch_top(MotorController* controller)
 
 bool switch_buttom(MotorController* controller)
 {
-    mc_set_rpm(controller, get_rpm_from_poti());
+    mc_set_rpm(controller, get_rpm_from_poti() * UPWARD_RATE);
 
     bool button_pressed = PIND & (1 << SWITCH_BOTTOM_PIN);
     return !button_pressed;
@@ -81,15 +83,33 @@ int main(void)
 
     sei();
 
+    // Downward
+    while (0)
+    {
+        mc_set_rpm(&controller, 147.0f);
+        mc_step_for_ms(&controller, 1, 300);
+        mc_set_rpm(&controller, 151.0f); // 147 - 151
+        mc_step_for_ms(&controller, 1, UINT16_MAX);
+    }
+
+    // Upward
+    while (1)
+    {
+        mc_set_rpm(&controller, 148.0f);
+        mc_step_for_ms(&controller, -1, 200);
+        mc_set_rpm(&controller, 160.0f);
+        mc_step_for_ms(&controller, -1, UINT16_MAX);
+    }
+
     while (1)
     {
         mc_set_rpm(&controller, get_rpm_from_poti() * SLOW_START_RATE);
-        mc_step_for_ms(&controller, 1, 1000);
+        mc_step_for_ms(&controller, 1, SLOW_START_TIME_MS);
         mc_step_until(&controller, 1, switch_top);
         PORTB ^= (1 << PB5);
 
         mc_set_rpm(&controller, get_rpm_from_poti() * SLOW_START_RATE);
-        mc_step_for_ms(&controller, -1, 1000);
+        mc_step_for_ms(&controller, -1, SLOW_START_TIME_MS);
         mc_step_until(&controller, -1, switch_buttom);
         PORTB ^= (1 << PB5);
     }

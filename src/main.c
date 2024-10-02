@@ -12,6 +12,8 @@
 #define BOTTOM_DELAY_MIN_100MS 10
 #define BOTTOM_DELAY_MAX_100MS 30
 
+uint8_t bottom_delay = BOTTOM_DELAY_MIN_100MS;
+
 uint8_t get_delay_100ms()
 {
     // Start conversion
@@ -31,12 +33,18 @@ uint8_t get_delay_100ms()
 bool switch_top(MotorController* controller)
 {
     const bool button_pressed = PIND & (1 << SWITCH_TOP_PIN);
+
+    bottom_delay = get_delay_100ms();
+
     return !button_pressed;
 }
 
 bool switch_buttom(MotorController* controller)
 {
     const bool button_pressed = PIND & (1 << SWITCH_BOTTOM_PIN);
+
+    bottom_delay = get_delay_100ms();
+
     return !button_pressed;
 }
 
@@ -93,10 +101,10 @@ int main(void)
         mc_step_until(&controller, 1, switch_buttom);
         printf("TOP: %d; BOTTOM: %d\r\n", switch_top(&controller), switch_buttom(&controller));
 
-        printf("Stop\r\n");
+        printf("Stop for %d00ms\r\n", bottom_delay);
         mc_stop(&controller);
 
-        for (uint8_t waited_100ms = get_delay_100ms(); waited_100ms > 0; waited_100ms--)
+        for (uint8_t waited_100ms = bottom_delay; waited_100ms > 0; waited_100ms--)
         {
             _delay_ms(100.0);
         }

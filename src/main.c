@@ -78,17 +78,22 @@ int main(void)
     while (1)
     {
         // Upward
+        printf("Upward\r\n");
         mc_set_rpm(&controller, 148.0f);
         mc_step_for_ms(&controller, -1, 200);
         mc_set_rpm(&controller, 160.0f);
         mc_step_until(&controller, -1, switch_top);
+        printf("TOP: %d; BOTTOM: %d\r\n", switch_top(&controller), switch_buttom(&controller));
 
         // Downward
+        printf("Downward\r\n");
         mc_set_rpm(&controller, 147.0f);
         mc_step_for_ms(&controller, 1, 300);
         mc_set_rpm(&controller, 151.0f);  // 147 - 151
         mc_step_until(&controller, 1, switch_buttom);
+        printf("TOP: %d; BOTTOM: %d\r\n", switch_top(&controller), switch_buttom(&controller));
 
+        printf("Stop\r\n");
         mc_stop(&controller);
 
         for (uint8_t waited_100ms = get_delay_100ms(); waited_100ms > 0; waited_100ms--)

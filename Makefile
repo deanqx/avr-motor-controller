@@ -16,6 +16,9 @@ deps:
 deps_dnf:
 	sudo dnf install -y avr-libc avrdude avr-binutils.x86_64 avr-gcc.x86_64 
 
+deps_pacman:
+	sudo pacman -S avr-libc avrdude avr-binutils avr-gcc
+
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	avr-gcc -O$(O) -DF_CPU=16000000UL -mmcu=atmega328p -c $< -o $@
 

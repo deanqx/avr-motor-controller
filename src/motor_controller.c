@@ -6,14 +6,6 @@
 #include "hal.c"
 #include "usart.h"
 
-void delay_ms(uint16_t ms)
-{
-    while (ms--)
-    {
-        _delay_ms(1);
-    }
-}
-
 void mc_init(MotorController* controller, float degree_per_micro_step)
 {
     controller->degree_per_step = degree_per_micro_step * 2;
@@ -104,7 +96,7 @@ void mc_step_for_degree(MotorController* controller, int8_t direction,
          degree_stepped += controller->degree_per_step)
     {
         mc_step(controller, direction);
-        delay_ms(controller->delay_between_steps_ms);
+        _delay_ms(controller->delay_between_steps_ms);
     }
 }
 
@@ -115,7 +107,7 @@ void mc_step_for_ms(MotorController* controller, int8_t direction,
          time_passed_ms += controller->delay_between_steps_ms)
     {
         mc_step(controller, direction);
-        delay_ms(controller->delay_between_steps_ms);
+        _delay_ms(controller->delay_between_steps_ms);
     }
 }
 
@@ -134,14 +126,14 @@ void mc_step_until(MotorController* controller, int8_t direction,
         }*/
 
         mc_step(controller, direction);
-        delay_ms(controller->delay_between_steps_ms);
+        _delay_ms(controller->delay_between_steps_ms);
     }
 }
 
 void mc_vibrate(MotorController* controller)
 {
     mc_step(controller, 1);
-    delay_ms(controller->delay_between_steps_ms);
+    _delay_ms(controller->delay_between_steps_ms);
     mc_step(controller, -1);
-    delay_ms(controller->delay_between_steps_ms);
+    _delay_ms(controller->delay_between_steps_ms);
 }

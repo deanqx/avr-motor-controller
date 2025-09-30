@@ -130,11 +130,3 @@ void mc_step_until(int8_t direction, bool (*callback)())
         _delay_ms(delay_between_steps_ms);
     }
 }
-
-void mc_vibrate()
-{
-    mc_step(1);
-    _delay_ms(delay_between_steps_ms);
-    mc_step(-1);
-    _delay_ms(delay_between_steps_ms);
-}

@@ -84,14 +84,6 @@ void mc_step(int8_t direction)
     }
 }
 
-void mc_release(void)
-{
-    hal_io_set(PORT_IN1, PIN_IN1, 0);
-    hal_io_set(PORT_IN2, PIN_IN2, 0);
-    hal_io_set(PORT_IN3, PIN_IN3, 0);
-    hal_io_set(PORT_IN4, PIN_IN4, 0);
-}
-
 void mc_step_degree(int16_t degree)
 {
     // forward: 1, backward: -1
@@ -123,4 +115,12 @@ void mc_step_until(int8_t direction, bool (*callback)())
         mc_step(direction);
         delay_us(delay_between_steps_us);
     }
+}
+
+void mc_release(void)
+{
+    hal_io_set(PORT_IN1, PIN_IN1, 0);
+    hal_io_set(PORT_IN2, PIN_IN2, 0);
+    hal_io_set(PORT_IN3, PIN_IN3, 0);
+    hal_io_set(PORT_IN4, PIN_IN4, 0);
 }

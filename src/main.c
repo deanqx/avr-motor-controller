@@ -1,121 +1,87 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <util/delay.h>
 
+#include "hal.c"
 #include "motor_controller.h"
 #include "usart.h"
 
-#define SWITCH_TOP_PIN PD5
-#define SWITCH_BOTTOM_PIN PD4
-
-#define BOTTOM_DELAY_MIN_100MS 10
-#define BOTTOM_DELAY_MAX_100MS 30
-
-uint8_t bottom_delay = BOTTOM_DELAY_MIN_100MS;
-
-// Get delay to wait at the bottom from poti
-uint8_t get_delay_100ms()
+bool reached_pull_limit()
 {
-    // Start conversion
-    ADCSRA |= (1 << ADSC);
-    // Wait until conversion is complete
-    while (ADCSRA & (1 << ADSC));
-
-    // Map 1023 to 255
-    const uint8_t brightness = ADC / (1023 / 255);
-
-    // Set Timer0 duty cycle for PD6
-    OCR0A = brightness;
-
-    return ADC * (BOTTOM_DELAY_MAX_100MS - BOTTOM_DELAY_MIN_100MS) / 1023 + BOTTOM_DELAY_MIN_100MS;
+    const bool reached_end = hal_io_get(PORT_DETECT_TOP, PIN_DETECT_TOP);
+    return !reached_end;
 }
 
-bool switch_top(MotorController* controller)
+bool reached_retracted_limit()
 {
-    const bool button_pressed = PIND & (1 << SWITCH_TOP_PIN);
-
-    bottom_delay = get_delay_100ms();
-
-    return !button_pressed;
+    const bool reached_end = hal_io_get(PORT_DETECT_BOTTOM, PIN_DETECT_BOTTOM);
+    return !reached_end;
 }
 
-bool switch_buttom(MotorController* controller)
+void set_position_with_uart()
 {
-    const bool button_pressed = PIND & (1 << SWITCH_BOTTOM_PIN);
+    printf("Set motor position with these commands:\r\n");
+    printf("Up: u\r\n");
+    printf("Down: d\r\n");
+    printf("Exit: e\r\n");
 
-    bottom_delay = get_delay_100ms();
+    while (1)
+    {
+        const char command = uart_getc();
 
-    return !button_pressed;
+        if (command == 'u')  // Up
+        {
+            mc_step_degree(10);
+        }
+        else if (command == 'd')  // Down
+        {
+            mc_step_degree(-10);
+        }
+        else if (command == 'e')  // exit
+        {
+            break;
+        }
+    }
 }
 
-void configure_optional_poti()
+void find_best_rpm(void)
 {
-    // Poti reading
-    // Set the ADC prescaler to 128 (16MHz / 128 = 125KHz)
-    ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-    // Using AVcc as reference and select ADC0
-    ADMUX |= (1 << REFS0) | ADC0D;
-    // Enable the Analog Digital Converter
-    ADCSRA |= (1 << ADEN);
-
-    // Speed indicating LED
-    DDRD |= (1 << PD6);
-    // Configure Timer0 for Fast PWM mode
-    TCCR0A |= (1 << WGM00) | (1 << WGM01);
-    // Clear OC0A on Compare Match
-    TCCR0A |= (1 << COM0A1);
-    // No prescaling
-    TCCR0B |= (1 << CS00);
+    for (uint16_t rpm = 40;; rpm += 5)
+    {
+        uart_putint(rpm);
+        uart_puts("\r\n");
+        mc_set_rpm(rpm);
+        mc_step_degree(-10);
+        _delay_ms(500);
+    }
 }
 
 int main(void)
 {
-    cli();
+    hal_init();
 
-    uart_init(BAUD_CALC(115200));
+    uart_init(BAUD_CALC(19200));
 
     // attach uart stream to stdout & stdin
     stdout = &uart0_io;
     stdin = &uart0_io;
 
-    MotorController controller;
-    mc_init(&controller, 0.9f);
+    mc_set_half_step(9);
+    mc_set_rpm(95);
 
-    // TODO check if used
-    // internal LED as direction indicator
-    DDRB |= (1 << PB5);
-    DDRD &= ~(1 << SWITCH_TOP_PIN);
-    DDRD &= ~(1 << SWITCH_BOTTOM_PIN);
+    set_position_with_uart();
 
-    configure_optional_poti();
+    find_best_rpm();
 
-    sei();
+    set_position_with_uart();
 
     while (1)
     {
-        // Upward
-        printf("Upward\r\n");
-        mc_set_rpm(&controller, 148.0f);
-        mc_step_for_ms(&controller, -1, 200);
-        mc_set_rpm(&controller, 160.0f);
-        mc_step_until(&controller, -1, switch_top);
-        printf("TOP: %d; BOTTOM: %d\r\n", switch_top(&controller), switch_buttom(&controller));
-
-        // Downward
-        printf("Downward\r\n");
-        mc_set_rpm(&controller, 147.0f);
-        mc_step_for_ms(&controller, 1, 300);
-        mc_set_rpm(&controller, 151.0f);  // 147 - 151
-        mc_step_until(&controller, 1, switch_buttom);
-        printf("TOP: %d; BOTTOM: %d\r\n", switch_top(&controller), switch_buttom(&controller));
-
-        printf("Stop for %d00ms\r\n", bottom_delay);
-        mc_stop(&controller);
-
-        for (uint8_t waited_100ms = bottom_delay; waited_100ms > 0; waited_100ms--)
-        {
-            _delay_ms(100.0);
-        }
+        mc_step_degree(90);
+        _delay_ms(500);
+        mc_step_degree(-90);
+        _delay_ms(500);
     }
 }

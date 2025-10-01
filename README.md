@@ -1,58 +1,43 @@
-This program was made to controll a stepper motor (moving linear)
-for a Freefall Tower. The motor transports a loose cage
-which falls when the motor hits a trigger at the bottom.
-It has a switch at the top and the bottom to change the
-direction of the motor. It waits for some time at the bottom.
-
-# Features
-- Controll Stepper Motor with L297 H-bridge
-- Adjust the waiting time in a predefined range by poti
-- LED indicating the adjusted speed by poti
+This is an example project on how to use the motor controller library.
 
 # Pins
 
-The pins for the motor are located at `motor_controller.h`.
-`main.c` contains the pins for to top and bottom switches.
+The pins for the motor can be configured in `hal.h`.
 
 # Install required packages
 
-Debian:
+## For Arch Linux
 
 ```
-make deps
+sudo pacman -S cmake avr-gcc avrdude
 ```
 
-Fedora:
+# Build
+
+## 1. Configure build system
+
+This only needs to be done when `CMakeLists.txt` was changed.
 
 ```
-make deps_dnf
+cmake -B build
 ```
 
-Arch:
+## 2. Build and upload sources
 
 ```
-make deps_pacman
+cmake --build build
 ```
 
-# Optional: Setup Language Server
-
-Generate `compile_commands.json` for clangd
+## Build without upload
 
 ```
-make clean
-bear -- make build
+cmake --build build --target hex
 ```
 
-# Compile and upload
+# Read USB serial output
+
+Warning: You can't upload and read UART at the same time.
 
 ```
-make
-```
-
-# Read USB Serial (printf)
-
-Warning: Can't upload and read at the same time.
-
-```
-screen /dev/ttyUSB0 115200
+minicom -D /dev/ttyUSB0 -b 19200
 ```

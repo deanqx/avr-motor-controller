@@ -3,6 +3,6 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 AllowShortFunctionsOnASingleLine: false
-ColumnLimit: 100
+ColumnLimit: 80
 BreakBeforeBraces: Allman
 PointerAlignment: Left

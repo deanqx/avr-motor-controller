@@ -17,6 +17,5 @@ void mc_step_for_ms(int8_t direction, uint16_t time_ms);
 // @param callback This function returns when callback returns false
 void mc_step_until(int8_t direction, bool (*callback)());
 // mc_calibrate() has to be called once before
-void mc_vibrate();
 
 #endif

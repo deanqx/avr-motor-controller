@@ -2,10 +2,10 @@
 
 #define PIN_DETECT_TOP PD5
 #define PIN_DETECT_BOTTOM PD5
-#define PIN_IN1 PB0
-#define PIN_IN2 PB1
-#define PIN_IN3 PB2
-#define PIN_IN4 PB3
+#define PIN_IN1 PB1  // arduino: D9
+#define PIN_IN2 PB2  // arduino: D10
+#define PIN_IN3 PB3  // arduino: D11
+#define PIN_IN4 PB4  // arduino: D12
 
 #define DDR_DETECT_TOP DDRD
 #define DDR_DETECT_BOTTOM DDRD
@@ -27,7 +27,7 @@
 static const unsigned char OUTPUT = 1;
 static const unsigned char INPUT = 0;
 
-inline void hal_init(void)
+static inline void hal_init(void)
 {
     hal_io_set(DDR_DETECT_TOP, PIN_DETECT_TOP, INPUT);
     hal_io_set(DDR_DETECT_BOTTOM, PIN_DETECT_BOTTOM, INPUT);

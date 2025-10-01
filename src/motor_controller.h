@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 // @param degree_per_micro_step Full Step Angle / 2
-void mc_init(float degree_per_micro_step);
+void mc_set_half_step(float degree_per_micro_step);
 void mc_set_rpm(float rpm);
 void mc_calibrate(int8_t direction);
 // @param direction forward: 1, backward: -1

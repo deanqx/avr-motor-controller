@@ -11,12 +11,18 @@ static float degree_per_step = 0;
 static float rpm = 0;
 static uint16_t delay_between_steps_ms = 0;
 
-void mc_init(float degree_per_micro_step)
+void delay_ms(double ms)
+{
+    while (ms--)
+    {
+        _delay_ms(1);
+    }
+}
+
+void mc_set_half_step(float degree_per_micro_step)
 {
     degree_per_step = degree_per_micro_step * 2;
     steps_per_revolution = 360.0f / degree_per_step;
-
-    mc_set_rpm(1.0f);
 }
 
 void mc_set_rpm(float new_rpm)
@@ -99,7 +105,7 @@ void mc_step_for_degree(int8_t direction, float degree)
          degree_stepped += degree_per_step)
     {
         mc_step(direction);
-        _delay_ms(delay_between_steps_ms);
+        delay_ms(delay_between_steps_ms);
     }
 }
 
@@ -109,7 +115,7 @@ void mc_step_for_ms(int8_t direction, uint16_t time_ms)
          time_passed_ms += delay_between_steps_ms)
     {
         mc_step(direction);
-        _delay_ms(delay_between_steps_ms);
+        delay_ms(delay_between_steps_ms);
     }
 }
 
@@ -127,6 +133,6 @@ void mc_step_until(int8_t direction, bool (*callback)())
         }*/
 
         mc_step(direction);
-        _delay_ms(delay_between_steps_ms);
+        delay_ms(delay_between_steps_ms);
     }
 }

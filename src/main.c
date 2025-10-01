@@ -6,19 +6,16 @@
 #include "motor_controller.h"
 #include "usart.h"
 
-#define BOTTOM_DELAY_MS 1000
-
-bool go_down(MotorController* controller)
+bool reached_pull_limit()
 {
-    const bool reached_top = hal_io_get(PORT_DETECT_TOP, PIN_DETECT_TOP);
-    return !reached_top;
+    const bool reached_end = hal_io_get(PORT_DETECT_TOP, PIN_DETECT_TOP);
+    return !reached_end;
 }
 
-bool go_up(MotorController* controller)
+bool reached_retracted_limit()
 {
-    const bool reached_bottom =
-        hal_io_get(PORT_DETECT_BOTTOM, PIN_DETECT_BOTTOM);
-    return !reached_bottom;
+    const bool reached_end = hal_io_get(PORT_DETECT_BOTTOM, PIN_DETECT_BOTTOM);
+    return !reached_end;
 }
 
 int main(void)
@@ -31,26 +28,12 @@ int main(void)
     stdout = &uart0_io;
     stdin = &uart0_io;
 
-    MotorController controller;
-    mc_init(&controller, 0.9f);
+    mc_set_half_step(0.9f);
+    mc_set_rpm(80.0f);
+
+    mc_step_for_degree(-1, 180.0f);
 
     while (1)
     {
-        // Upward
-        printf("Upward\r\n");
-        mc_set_rpm(&controller, 148.0f);
-        mc_step_for_ms(&controller, -1, 200);
-        mc_set_rpm(&controller, 160.0f);
-        mc_step_until(&controller, -1, go_down);
-
-        // Downward
-        printf("Downward\r\n");
-        mc_set_rpm(&controller, 147.0f);
-        mc_step_for_ms(&controller, 1, 300);
-        mc_set_rpm(&controller, 151.0f);  // 147 - 151
-        mc_step_until(&controller, 1, go_up);
-
-        mc_stop(&controller);
-        _delay_ms(BOTTOM_DELAY_MS);
     }
 }

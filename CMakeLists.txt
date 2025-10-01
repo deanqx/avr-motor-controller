@@ -23,7 +23,12 @@ set(CMAKE_EXE_LINKER_FLAGS "-mmcu=${MCU}")
 add_executable(${PROJECT_NAME}.elf
     src/main.c
     src/motor_controller.c
-    src/usart.c
+    lib/usart.c
+)
+
+target_include_directories(${PROJECT_NAME}.elf
+    PRIVATE
+    lib
 )
 
 # convert ELF to IHEX

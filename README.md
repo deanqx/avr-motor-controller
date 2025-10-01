@@ -1,4 +1,4 @@
-TODO Description
+This is an example project on how to use the motor controller library.
 
 # Pins
 

@@ -23,8 +23,9 @@ void mc_step_degree(int16_t degree);
 // @param direction forward: 1, backward: -1
 void mc_step_for_ms(int8_t direction, uint16_t time_ms);
 // @param direction forward: 1, backward: -1
-// @param callback This function returns when callback returns false
+// @param callback Steps until callback function returns false
 void mc_step_until(int8_t direction, bool (*callback)());
+// Turn off all coils
 void mc_release(void);
 
 #endif

@@ -33,3 +33,11 @@ cmake --build build
 ```
 cmake --build build --target hex
 ```
+
+# Read USB serial output
+
+Warning: You can't upload and read UART at the same time.
+
+```
+minicom -D /dev/ttyUSB0 -b 19200
+```

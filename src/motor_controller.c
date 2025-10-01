@@ -4,34 +4,32 @@
 #include <util/delay.h>
 
 #include "hal.c"
-#include "usart.h"
 
-static float steps_per_revolution = 0;
-static float degree_per_step = 0;
-static float rpm = 0;
-static uint16_t delay_between_steps_ms = 0;
+static uint16_t steps_per_revolution = 0;
+static uint16_t degree_per_step_10 = 0;
+static uint16_t rpm = 0;
+static uint16_t delay_between_steps_us = 0;
 
-void delay_ms(double ms)
+void delay_us(uint16_t wait_us)
 {
-    while (ms--)
+    for (uint16_t waited_us = 0; waited_us < wait_us; waited_us += 100)
     {
-        _delay_ms(1);
+        // added small tolerance of 5 us
+        _delay_us(95);
     }
 }
 
-void mc_set_half_step(float degree_per_micro_step)
+void mc_set_half_step(uint8_t half_step_10)
 {
-    degree_per_step = degree_per_micro_step * 2;
-    steps_per_revolution = 360.0f / degree_per_step;
+    degree_per_step_10 = half_step_10 * 2;
+    steps_per_revolution = 3600 / degree_per_step_10;
 }
 
-void mc_set_rpm(float new_rpm)
+void mc_set_rpm(uint16_t new_rpm)
 {
-    // printf("RPM: %d\r\n", (int)rpm);
-
     rpm = new_rpm;
-    // 1min=60000ms
-    delay_between_steps_ms = 60000 / (uint16_t)(steps_per_revolution * rpm);
+    // 1 min = 60 000 000 us
+    delay_between_steps_us = 60000000 / (uint32_t)(steps_per_revolution * rpm);
 }
 
 void mc_calibrate(int8_t direction)
@@ -48,6 +46,7 @@ void mc_step(int8_t direction)
 
     step_phase += direction;
 
+    // TODO use calculation
     if (step_phase > 3)
     {
         step_phase = 0;
@@ -91,7 +90,7 @@ void mc_step(int8_t direction)
     }
 }
 
-void mc_stop()
+void mc_release(void)
 {
     hal_io_set(PORT_IN1, PIN_IN1, 0);
     hal_io_set(PORT_IN2, PIN_IN2, 0);
@@ -99,23 +98,26 @@ void mc_stop()
     hal_io_set(PORT_IN4, PIN_IN4, 0);
 }
 
-void mc_step_for_degree(int8_t direction, float degree)
+void mc_step_degree(int16_t degree)
 {
-    for (float degree_stepped = 0.0f; degree_stepped < degree;
-         degree_stepped += degree_per_step)
+    int8_t direction = (degree > 0) - (degree < 0);
+    uint16_t degree_abs_10 = (direction * degree) * 10;
+
+    for (uint16_t degree_stepped_10 = 0; degree_stepped_10 < degree_abs_10;
+         degree_stepped_10 += degree_per_step_10)
     {
         mc_step(direction);
-        delay_ms(delay_between_steps_ms);
+        delay_us(delay_between_steps_us);
     }
 }
 
 void mc_step_for_ms(int8_t direction, uint16_t time_ms)
 {
     for (uint16_t time_passed_ms = 0; time_passed_ms <= time_ms;
-         time_passed_ms += delay_between_steps_ms)
+         time_passed_ms += delay_between_steps_us)
     {
         mc_step(direction);
-        delay_ms(delay_between_steps_ms);
+        delay_us(delay_between_steps_us);
     }
 }
 
@@ -123,16 +125,7 @@ void mc_step_until(int8_t direction, bool (*callback)())
 {
     while (callback())
     {
-        /*printf("\nPress s to Step and r to reverse: ");
-
-        char command = getchar();
-
-        if (command == 'r')
-        {
-            return;
-        }*/
-
         mc_step(direction);
-        delay_ms(delay_between_steps_ms);
+        delay_us(delay_between_steps_us);
     }
 }

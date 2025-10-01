@@ -32,14 +32,6 @@ void mc_set_rpm(uint16_t new_rpm)
     delay_between_steps_us = 60000000 / (uint32_t)(steps_per_revolution * rpm);
 }
 
-void mc_calibrate(int8_t direction)
-{
-    mc_step(direction);
-    mc_step(direction);
-    mc_step(direction);
-    mc_step(direction);
-}
-
 void mc_step(int8_t direction)
 {
     static int8_t step_phase = 0;

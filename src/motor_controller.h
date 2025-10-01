@@ -17,7 +17,6 @@
  */
 void mc_set_half_step(uint8_t half_step_10);
 void mc_set_rpm(uint16_t rpm);
-void mc_calibrate(int8_t direction);
 // @param direction forward: 1, backward: -1
 void mc_step(int8_t direction);
 void mc_step_degree(int16_t degree);

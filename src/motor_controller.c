@@ -44,21 +44,15 @@ void mc_step(int8_t direction)
 {
     static int8_t step_phase = 0;
 
-    step_phase += direction;
+    step_phase = (step_phase + direction) % 4;
 
-    // TODO use calculation
-    if (step_phase > 3)
-    {
-        step_phase = 0;
-    }
-    else if (step_phase < 0)
+    if (step_phase < 0)
     {
         step_phase = 3;
     }
 
     switch (step_phase)
     {
-        // Turning off first is required
         case 0:
             hal_io_set(PORT_IN2, PIN_IN2, 0);
             hal_io_set(PORT_IN4, PIN_IN4, 0);
@@ -100,6 +94,7 @@ void mc_release(void)
 
 void mc_step_degree(int16_t degree)
 {
+    // forward: 1, backward: -1
     int8_t direction = (degree > 0) - (degree < 0);
     uint16_t degree_abs_10 = (direction * degree) * 10;
 

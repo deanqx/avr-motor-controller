@@ -29,7 +29,8 @@ void mc_set_rpm(uint16_t new_rpm)
 {
     rpm = new_rpm;
     // 1 min = 60 000 000 us
-    delay_between_steps_us = 60000000 / (uint32_t)(steps_per_revolution * rpm);
+    delay_between_steps_us =
+        60000 / (1000 * (uint16_t)(steps_per_revolution * rpm));
 }
 
 void mc_step(int8_t direction)

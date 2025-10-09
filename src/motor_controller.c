@@ -37,16 +37,24 @@ void mc_step(int8_t direction)
 {
     static int8_t step_phase = 0;
 
-    step_phase = (step_phase + direction) % 4;
+    step_phase = (step_phase + direction) % 8;
 
     if (step_phase < 0)
     {
-        step_phase = 3;
+        step_phase = 7;
     }
 
     switch (step_phase)
     {
         case 0:
+            hal_io_set(PORT_IN2, PIN_IN2, 0);
+            hal_io_set(PORT_IN4, PIN_IN4, 0);
+            //_delay_us(20.0);
+            hal_io_set(PORT_IN1, PIN_IN1, 1);
+            hal_io_set(PORT_IN3, PIN_IN3, 1);
+            break;
+        case 99:
+            // TODO: left here, adding half step
             hal_io_set(PORT_IN2, PIN_IN2, 0);
             hal_io_set(PORT_IN4, PIN_IN4, 0);
             //_delay_us(20.0);

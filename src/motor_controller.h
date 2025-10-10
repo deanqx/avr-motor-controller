@@ -18,12 +18,11 @@
 void mc_set_half_step(uint8_t half_step_10);
 void mc_set_rpm(uint16_t rpm);
 /*
- * @param direction
+ * @param move
  * full step: forward: 2, backward: -2
  * half step: forward: 1, backward: -1
  */
-void mc_step(int8_t direction);
-void mc_step_half(int8_t direction);
+void mc_step(int8_t move);
 void mc_step_degree(int16_t degree);
 // @param direction forward: 1, backward: -1
 void mc_step_for_ms(int8_t direction, uint16_t time_ms);

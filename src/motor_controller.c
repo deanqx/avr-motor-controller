@@ -33,54 +33,93 @@ void mc_set_rpm(uint16_t new_rpm)
         60000 / (1000 * (uint16_t)(steps_per_revolution * rpm));
 }
 
-void mc_step(int8_t direction)
+static inline void winding_a_plus(void)
 {
-    static int8_t step_phase = 0;
+    hal_io_set(PORT_IN1, PIN_IN1, 1);
+    hal_io_set(PORT_IN2, PIN_IN2, 0);
+}
 
-    step_phase = (step_phase + direction) % 8;
+static inline void winding_a_neutral(void)
+{
+    hal_io_set(PORT_IN1, PIN_IN1, 0);
+    hal_io_set(PORT_IN2, PIN_IN2, 0);
+}
+
+static inline void winding_a_minus(void)
+{
+    hal_io_set(PORT_IN1, PIN_IN1, 0);
+    hal_io_set(PORT_IN2, PIN_IN2, 1);
+}
+
+static inline void winding_b_plus(void)
+{
+    hal_io_set(PORT_IN1, PIN_IN1, 1);
+    hal_io_set(PORT_IN2, PIN_IN2, 0);
+}
+
+static inline void winding_b_neutral(void)
+{
+    hal_io_set(PORT_IN1, PIN_IN1, 0);
+    hal_io_set(PORT_IN2, PIN_IN2, 0);
+}
+
+static inline void winding_b_minus(void)
+{
+    hal_io_set(PORT_IN1, PIN_IN1, 0);
+    hal_io_set(PORT_IN2, PIN_IN2, 1);
+}
+
+void mc_step(int8_t move)
+{
+    static int8_t step_phase = 0;  // step_phase * 45 = electrical angle
+
+    step_phase = (step_phase + move) % 8;
+
+    if (move % 2 == 0)
+    {
+        // TODO: round full step, so switching from half step to full works
+    }
 
     if (step_phase < 0)
     {
         step_phase = 7;
     }
 
+    // Windings polation are set multiple times to keep equal timing
+    // and to support switch between half and full step
     switch (step_phase)
     {
         case 0:
-            hal_io_set(PORT_IN2, PIN_IN2, 0);
-            hal_io_set(PORT_IN4, PIN_IN4, 0);
-            //_delay_us(20.0);
-            hal_io_set(PORT_IN1, PIN_IN1, 1);
-            hal_io_set(PORT_IN3, PIN_IN3, 1);
-            break;
-        case 99:
-            // TODO: left here, adding half step
-            hal_io_set(PORT_IN2, PIN_IN2, 0);
-            hal_io_set(PORT_IN4, PIN_IN4, 0);
-            //_delay_us(20.0);
-            hal_io_set(PORT_IN1, PIN_IN1, 1);
-            hal_io_set(PORT_IN3, PIN_IN3, 1);
+            winding_a_plus();
+            winding_b_neutral();
             break;
         case 1:
-            hal_io_set(PORT_IN1, PIN_IN1, 0);
-            hal_io_set(PORT_IN4, PIN_IN4, 0);
-            //_delay_us(20.0);
-            hal_io_set(PORT_IN2, PIN_IN2, 1);
-            hal_io_set(PORT_IN3, PIN_IN3, 1);
+            winding_a_plus();
+            winding_b_plus();
             break;
         case 2:
-            hal_io_set(PORT_IN1, PIN_IN1, 0);
-            hal_io_set(PORT_IN3, PIN_IN3, 0);
-            //_delay_us(20.0);
-            hal_io_set(PORT_IN2, PIN_IN2, 1);
-            hal_io_set(PORT_IN4, PIN_IN4, 1);
+            winding_a_neutral();
+            winding_b_plus();
             break;
         case 3:
-            hal_io_set(PORT_IN2, PIN_IN2, 0);
-            hal_io_set(PORT_IN3, PIN_IN3, 0);
-            //_delay_us(20.0);
-            hal_io_set(PORT_IN1, PIN_IN1, 1);
-            hal_io_set(PORT_IN4, PIN_IN4, 1);
+            winding_a_minus();
+            winding_b_plus();
+            break;
+        case 4:
+            winding_a_minus();
+            winding_b_neutral();
+            break;
+        case 5:
+            winding_a_minus();
+            winding_b_minus();
+            break;
+        case 6:
+            winding_a_neutral();
+            winding_b_minus();
+            break;
+        case 7:
+            winding_a_plus();
+            winding_b_minus();
             break;
     }
 }

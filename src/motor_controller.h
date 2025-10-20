@@ -16,6 +16,9 @@
  * ```
  */
 void mc_set_half_step(uint8_t half_step_10);
+/*
+ * @param rpm Too low values can result in integer overflow.
+ */
 void mc_set_rpm(uint16_t rpm);
 /*
  * @param move
@@ -24,11 +27,12 @@ void mc_set_rpm(uint16_t rpm);
  */
 void mc_step(int8_t move);
 void mc_step_degree(int16_t degree);
+void mc_half_step_degree(int16_t degree);
 // @param direction forward: 1, backward: -1
-void mc_step_for_ms(int8_t direction, uint16_t time_ms);
+void mc_step_for_ms(int8_t move, uint16_t time_ms);
 // @param direction forward: 1, backward: -1
 // @param callback Steps until callback function returns false
-void mc_step_until(int8_t direction, bool (*callback)());
+void mc_step_until(int8_t move, bool (*callback)());
 // Turn off all coils
 void mc_release(void);
 

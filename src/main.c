@@ -68,6 +68,13 @@ int main(void)
     stdout = &uart0_io;
     stdin = &uart0_io;
 
+    mc_set_half_step(31);
+    mc_set_rpm(200);
+
+    mc_half_step_degree(360 * 64);
+    mc_half_step_degree(360 * 64);
+    return 0;
+
     mc_set_half_step(9);
     mc_set_rpm(95);
 
